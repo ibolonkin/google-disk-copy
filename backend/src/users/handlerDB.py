@@ -24,3 +24,9 @@ async def register_user(userData, session):
     user = UserBase.model_validate(userOrm, from_attributes=True)
     await session.commit()
     return user
+
+
+async def find_sub(sub, session):
+    query = select(Users).where(Users.uuid == sub)
+    user = (await session.execute(query)).scalar()
+    return user
