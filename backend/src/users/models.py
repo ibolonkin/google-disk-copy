@@ -11,7 +11,7 @@ class Users(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    uuid = Column(UUID(as_uuid=True), server_default=func.gen_random_uuid(), nullable=False, index=True)
+    uuid = Column(UUID(as_uuid=True), server_default=func.gen_random_uuid(), nullable=False, index=True,  unique=True)
     username: Mapped[str] = mapped_column(index=True, unique=True)
     email: Mapped[str] = mapped_column(unique=True, index=True,)
     hash_password: Mapped[str]

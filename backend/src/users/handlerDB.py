@@ -1,4 +1,5 @@
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, orm
+
 from fastapi import HTTPException
 from passlib.context import CryptContext
 from .models import Users
@@ -25,8 +26,14 @@ async def register_user(userData, session):
     await session.commit()
     return user
 
+def get_find(obj_type: orm.attributes.InstrumentedAttribute):
+    async def find(obj, session):
+        query = select(Users).where(obj_type == obj)
+        user = (await session.execute(query)).scalar()
+        return user
 
-async def find_sub(sub, session):
-    query = select(Users).where(Users.uuid == sub)
-    user = (await session.execute(query)).scalar()
-    return user
+    return find
+
+
+find_sub = get_find(Users.uuid)
+find_email = get_find(Users.email)
