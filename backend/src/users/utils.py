@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime, timezone
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from .handlerDB import find_sub, find_email, password_context
 from .shemas import UserBase, UserLogin, Token
@@ -72,11 +72,13 @@ def decode_jwt(
 def get_current_token_payload(
         credentials: HTTPAuthorizationCredentials = Depends(http_bearer)
 ):
-    token = credentials.credentials
     try:
+        token = credentials.credentials
         payload = decode_jwt(token=token)
     except jwt.InvalidTokenError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid token ( parse ) ')
+    except:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='token not found')
     return payload
 
 
@@ -112,7 +114,24 @@ async def get_user_by_token_sub(
 
 
 get_current_auth_user = get_auth_user_from_token_of_type(ACCESS_TOKEN_TYPE)
-get_current_auth_user_refresh = get_auth_user_from_token_of_type(REFRESH_TOKEN_TYPE)
+
+
+# get_current_auth_user_refresh = get_auth_user_from_token_of_type(REFRESH_TOKEN_TYPE)
+
+async def get_current_auth_user_active(user = Depends(get_current_auth_user)):
+    if user.active:
+        return user
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="user not active")
+
+
+async def get_auth_user_refresh(request: Request, session=Depends(get_async_session)):
+    token = request.cookies.get(settings.auth_jwt.key_cookie)
+    try:
+        payload = decode_jwt(token=token)
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid token ( parse ) ')
+    validate_token_type(payload, REFRESH_TOKEN_TYPE)
+    return await get_user_by_token_sub(payload, session)
 
 
 async def validate_auth_user(
@@ -125,12 +144,12 @@ async def validate_auth_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='email or password wrong')
     return user
 
-    pass
 
-def return_token(user: UserBase):
+def return_token(user: UserBase, response: Response):
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)
+    response.set_cookie(key=settings.auth_jwt.key_cookie, value=refresh_token, httponly=True,
+                        max_age=settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60, )
     return Token(
         access_token=access_token,
-        refresh_token=refresh_token
     )

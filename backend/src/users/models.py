@@ -1,4 +1,4 @@
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import func, Column
 from sqlalchemy.dialects.postgresql import UUID
 from ..base import Base
@@ -15,3 +15,8 @@ class Users(Base):
     username: Mapped[str] = mapped_column(index=True, unique=True)
     email: Mapped[str] = mapped_column(unique=True, index=True,)
     hash_password: Mapped[str]
+    active: Mapped[bool] = mapped_column(server_default='True')
+
+    posts: Mapped[list['Posts']] = relationship(
+        back_populates='user',
+        lazy='selectin')

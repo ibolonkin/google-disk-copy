@@ -10,6 +10,7 @@ class AuthJWT(BaseModel):
     algorithm: str = 'RS256'
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 30
+    key_cookie: str = 'Auth-refresh'
 
 class Settings(BaseSettings):
     DB_HOST: str
