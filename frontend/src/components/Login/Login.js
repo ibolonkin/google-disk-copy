@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './style.css';
 
 const Login = () => {
@@ -43,7 +44,13 @@ const Login = () => {
 
     return (
         <>
-            <div className='Login'>
+
+            <div className='have-account'>
+                <p className='text'>Don't have an account yet?</p>
+                <Link to="/" className='link'>Sign Up</Link>
+            </div>
+
+            <div className='Login'> 
                 <form className='form'>
                     <h1 className='title'>Sign In</h1>
 

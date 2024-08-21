@@ -89,3 +89,26 @@ h1{
 .input:focus{
     border: 2px solid #4303d8;
 }
+
+.have-account{
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 40px;
+    margin-top: 10px;
+}
+
+.text{
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 22px;
+}
+
+.link{
+    background-color: #015ce4;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: white;
+    font-weight: 600;
+}

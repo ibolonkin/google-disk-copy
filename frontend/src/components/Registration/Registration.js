@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './style.css';
 
 const Registration = () => {
@@ -49,6 +50,12 @@ const Registration = () => {
 
     return (
         <>
+            <div className='have-account'>
+                <p className='text'>Already have an account?</p>
+                <Link to="/sign-in" className='link'>Sign In</Link>
+            </div>
+            
+
             <div className='Registration'>
                 <form className='form'>
                     <h1 className='title'>Sign Up</h1>
