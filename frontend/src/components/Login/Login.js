@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import './style.css';
 
-const Registration = () => {
+const Login = () => {
     const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [isDisabled, setIsDisabled] = useState(false);
@@ -27,42 +26,26 @@ const Registration = () => {
         updateButtonState();
     }
 
-    const handleNameChange = event => {
-        setName(event.target.value);
-        updateButtonState();
-    }
-
     const handlePasswordChange = event => {
         setPassword(event.target.value);
         updateButtonState();
     }
 
     const updateButtonState = () => {
-        const isFormValid = isValidEmail(email) && name !== '' && password !== '';
+        const isFormValid = isValidEmail(email) && password !== '';
         setIsDisabled(!isFormValid);
     }
 
     useEffect(() => {
         updateButtonState();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [email, name, password]);
+    }, [email, password]);
 
     return (
         <>
-            <div className='Registration'>
+            <div className='Login'>
                 <form className='form'>
-                    <h1 className='title'>Sign Up</h1>
-                    <div className='inputContainer'>
-                        
-                        <input 
-                            className='input' 
-                            type='text' 
-                            placeholder='Name' 
-                            maxlength="16"
-                            value={name}
-                            onChange={handleNameChange}
-                        />
-                    </div>
+                    <h1 className='title'>Sign In</h1>
 
                     <div className='inputContainer'>
                         
@@ -92,10 +75,10 @@ const Registration = () => {
                         />
                     </div>
                     <input 
-                        className='registrationBtn'
+                        className='LoginBtn'
                         disabled={isDisabled}
                         type="submit"
-                        value="Sign Up"
+                        value="Sign In"
                     />
 
                 </form>
@@ -104,4 +87,4 @@ const Registration = () => {
     );
 }
  
-export default Registration;
+export default Login;
