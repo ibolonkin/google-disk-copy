@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 # from fastapi.middleware.cors import CORSMiddleware
 from .users.router import router as user_router
+from .posts.router import router as post_router
 from .base import Base, engine
 from .users.models import Users
+from .posts.models import Posts
 
 app = FastAPI()
 # origins = [
@@ -32,3 +34,5 @@ async def drop_tables():
 
 
 app.include_router(user_router, prefix="/v1", tags=['users'])
+app.include_router(post_router, prefix="/posts", tags=['posts'])
+

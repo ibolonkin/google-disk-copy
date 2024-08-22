@@ -16,8 +16,6 @@ class UserRegister(User):
 class UserBase(User):
     uuid: UUID4
 
-
 class Token(BaseModel):
     token_type: str = 'Bearer'
     access_token: str
-    refresh_token: str
