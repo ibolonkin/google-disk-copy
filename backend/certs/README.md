@@ -1,0 +1,1 @@
+This folder contains two files with a private and public key for creating jwt.

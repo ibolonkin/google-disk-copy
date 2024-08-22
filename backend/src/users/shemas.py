@@ -15,6 +15,7 @@ class UserRegister(User):
 
 class UserBase(User):
     uuid: UUID4
+    verified: bool
 
 class Token(BaseModel):
     token_type: str = 'Bearer'

@@ -6,6 +6,7 @@ from ..base import Base
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
+VERIFY_TOKEN_TYPE = "verify"
 
 class Users(Base):
     __tablename__ = 'users'

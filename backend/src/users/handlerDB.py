@@ -16,13 +16,11 @@ async def conflict_user(userData, session):
 
 
 async def register_user(userData, session):
-    await conflict_user(userData, session)
-
     hash_password = password_context.hash(userData.password)
     userOrm = Users(email=userData.email, username=userData.username, hash_password=hash_password)
     session.add(userOrm)
     await session.flush()
-    user = UserBase.model_validate(userOrm, from_attributes=True)
+    user = userOrm
     await session.commit()
     return user
 
