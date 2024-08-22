@@ -4,10 +4,13 @@ from fastapi import Depends, HTTPException, status, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from .handlerDB import find_sub, find_email, password_context
 from .shemas import UserBase, UserLogin, Token
-from .models import TOKEN_TYPE_FIELD, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
+from .models import TOKEN_TYPE_FIELD, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, VERIFY_TOKEN_TYPE
 from ..base import get_async_session
 from ..config import settings
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
 http_bearer = HTTPBearer(auto_error=False)
 
@@ -43,7 +46,8 @@ def create_access_token(user: UserBase) -> str:
     jwt_payload = {
         'username': user.username,
         'email': user.email,
-        'sub': str(user.uuid)
+        'sub': str(user.uuid),
+        'verified': user.verified
     }
     return create_jwt(token_type=ACCESS_TOKEN_TYPE,
                       token_data=jwt_payload,
@@ -116,12 +120,18 @@ async def get_user_by_token_sub(
 get_current_auth_user = get_auth_user_from_token_of_type(ACCESS_TOKEN_TYPE)
 
 
+async def get_current_auth_user_noActive(user=Depends(get_current_auth_user)):
+    if not user.active:
+        return user
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="user is already active")
+
+
 # get_current_auth_user_refresh = get_auth_user_from_token_of_type(REFRESH_TOKEN_TYPE)
 
-async def get_current_auth_user_active(user = Depends(get_current_auth_user)):
+async def get_current_auth_user_active(user=Depends(get_current_auth_user)):
     if user.active:
         return user
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="user not active")
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="user not active")
 
 
 async def get_auth_user_refresh(request: Request, session=Depends(get_async_session)):
@@ -153,3 +163,53 @@ def return_token(user: UserBase, response: Response):
     return Token(
         access_token=access_token,
     )
+
+
+def create_verify_token(user: UserBase):
+    jwt_payload = {
+        'email': user.email,
+        'sub': str(user.uuid),
+    }
+    return create_jwt(token_type=VERIFY_TOKEN_TYPE,
+                      token_data=jwt_payload,
+                      expire_minutes=settings.auth_jwt.verify_token_expire_minutes,
+                      )
+
+
+async def verify_mail_token(token: str, session=Depends(get_async_session)):
+    try:
+        payload = decode_jwt(token=token)
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid token', )
+    validate_token_type(payload, VERIFY_TOKEN_TYPE)
+    user = await get_user_by_token_sub(payload, session)
+    if user.email != payload['email']:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='invalid token')
+    user.verified = True
+    await session.commit()
+    return user
+
+async def send_mail(user):
+    url = f'http://localhost:8000/v1/confirm/{create_verify_token(user)}'
+    server = smtplib.SMTP('smtp.mail.ru', 587)
+    server.starttls()
+    msg = MIMEMultipart()
+    fromaddr = settings.EMAIL_LOGIN
+    toaddr = user.email
+    mypass = settings.EMAIL_PASSWORD
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Подтверждение почты"
+    body = f"""
+    <html>
+    <body>
+      <a href='{url}' style='text-decoration: none;color:white;'>Ссылка для подтверждения.</p>
+    </body>
+    </html>
+    """
+    msg.attach(MIMEText(body, 'html'))
+    server.login(fromaddr, mypass)
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
+    return
