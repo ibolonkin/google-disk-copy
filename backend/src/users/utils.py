@@ -203,7 +203,7 @@ async def send_mail(user):
     body = f"""
     <html>
     <body>
-      <a href='{url}' style='text-decoration: none;color:white;'>Ссылка для подтверждения.</p>
+      <p>Перейдите по <a href='{url}'>ссылке</a>, чтобы подтвердить почту </p>
     </body>
     </html>
     """
