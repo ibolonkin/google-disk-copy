@@ -10,6 +10,7 @@ class AuthJWT(BaseModel):
     algorithm: str = 'RS256'
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 30
+    verify_token_expire_minutes: int = 15
     key_cookie: str = 'Auth-refresh'
 
 class Settings(BaseSettings):
@@ -18,6 +19,8 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_USER: str
     DB_PASS: str
+    EMAIL_LOGIN: str
+    EMAIL_PASSWORD: str
     model_config = SettingsConfigDict(env_file=".env")
     auth_jwt: AuthJWT = AuthJWT()
 

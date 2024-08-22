@@ -21,6 +21,7 @@ app = FastAPI()
 #     allow_headers=["*"],
 # )
 
+
 @app.on_event("startup")
 async def init_tables():
     async with engine.begin() as conn:
@@ -35,4 +36,3 @@ async def drop_tables():
 
 app.include_router(user_router, prefix="/v1", tags=['users'])
 app.include_router(post_router, prefix="/posts", tags=['posts'])
-
