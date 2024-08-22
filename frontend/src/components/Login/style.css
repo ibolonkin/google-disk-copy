@@ -6,7 +6,7 @@ body {
     font-family: "lato", sans-serif;
 }
 
-.Registration{
+.Login{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -59,9 +59,8 @@ h1{
     z-index: 0;
 }
 
-.registrationBtn{
+.LoginBtn{
     display: block;
-    font-weight: 500;
     padding: 12px 24px;
     border: none;
     background-color: #4303d8;
@@ -77,12 +76,12 @@ h1{
     background-color: #b5b8bb;
 }
 
-.registrationBtn:hover:disabled {
+.LoginBtn:hover:disabled {
     background-color: #b5b8bb;
     
 }
 
-.registrationBtn:hover {
+.LoginBtn:hover {
     background-color: #015ce4;
     transform: translateY(-2px);
 }
