@@ -16,6 +16,7 @@ class Users(Base):
     email: Mapped[str] = mapped_column(unique=True, index=True,)
     hash_password: Mapped[str]
     active: Mapped[bool] = mapped_column(server_default='True')
+    verified: Mapped[bool] = mapped_column(server_default='False')
 
     posts: Mapped[list['Posts']] = relationship(
         back_populates='user',

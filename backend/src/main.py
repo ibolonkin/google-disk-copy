@@ -36,4 +36,3 @@ async def drop_tables():
 app.include_router(user_router, prefix="/v1", tags=['users'])
 app.include_router(post_router, prefix="/posts", tags=['posts'])
 
-# TODO: обновить информацию и удалить аккаунт ( сделать не активным ) и сделать рефреш токен на куках

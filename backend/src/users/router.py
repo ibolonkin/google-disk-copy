@@ -1,5 +1,4 @@
-from fastapi import Depends, APIRouter, status, Response, HTTPException
-
+from fastapi import Depends, APIRouter, status, Response
 from .utils import (validate_auth_user,
                     return_token, get_auth_user_refresh, get_current_auth_user_active, get_current_auth_user)
 from ..base import get_async_session
@@ -25,7 +24,6 @@ async def auth(response: Response, user: UserBase = Depends(validate_auth_user))
     return return_token(user, response)
 
 
-# TODO: ничего не понятно с удалением пользователя когда ему восстанавливаться и где и можно ли ему в рефреш
 @router.post('/refresh', status_code=status.HTTP_200_OK)
 async def refresh(response: Response, user: UserBase = Depends(get_auth_user_refresh)) -> Token:
     return return_token(user, response)
@@ -35,11 +33,15 @@ async def refresh(response: Response, user: UserBase = Depends(get_auth_user_ref
 async def delete_user(user=Depends(get_current_auth_user_active), session=Depends(get_async_session)):
     user.active = False
     await session.commit()
-    return {'message': 'User deleted'}
+    return
 
 
 @router.put('/restore', status_code=status.HTTP_200_OK)
 async def restore_user(user=Depends(get_current_auth_user), session=Depends(get_async_session)):
     user.active = True
     await session.commit()
-    return {'message': 'User restore'}
+    return
+
+@router.put('/verify', status_code=status.HTTP_200_OK)
+async def verify_mail(user=Depends(get_current_auth_user_active)):
+    return
