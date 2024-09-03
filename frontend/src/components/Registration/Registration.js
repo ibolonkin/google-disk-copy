@@ -4,7 +4,7 @@ import './style.css';
 
 const Registration = () => {
     const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
+    const [username, setName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [isDisabled, setIsDisabled] = useState(false);
@@ -39,25 +39,55 @@ const Registration = () => {
     }
 
     const updateButtonState = () => {
-        const isFormValid = isValidEmail(email) && name !== '' && password !== '';
+        const isFormValid = isValidEmail(email) && username !== '' && password !== '';
         setIsDisabled(!isFormValid);
     }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('http://26.15.99.17:8000/v1/register', {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                body: JSON.stringify({
+                    'username': username,
+                    'email': email,
+                    'password': password
+                })
+                
+            });
+
+            const result = await response.json()
+
+            const token = result.access_token;
+            localStorage.setItem('token', token)
+            window.location.href = '/main'
+        }
+        
+        catch (error){
+            console.error('Ошибка аутентификации:', error);
+        }
+    };
 
     useEffect(() => {
         updateButtonState();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [email, name, password]);
+    }, [email, username, password]);
 
     return (
         <>
             <div className='have-account'>
                 <p className='text'>Already have an account?</p>
-                <Link to="/sign-in" className='link'>Sign In</Link>
+                <Link to="/login" className='link'>Sign In</Link>
             </div>
             
 
             <div className='Registration'>
-                <form className='form'>
+                <form className='form' onSubmit={handleSubmit}>
                     <h1 className='title'>Sign Up</h1>
                     <div className='inputContainer'>
                         
@@ -66,7 +96,7 @@ const Registration = () => {
                             type='text' 
                             placeholder='Name' 
                             maxlength="16"
-                            value={name}
+                            value={username}
                             onChange={handleNameChange}
                         />
                     </div>
